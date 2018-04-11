@@ -1,6 +1,8 @@
 # DLC Oracle
 
-This project can serve as an oracle while forming Discreet Log Contracts. This oracle currently publishes the value of the US Dollar denominated in Bitcoin's smallest fraction (satoshis). You can interact with the oracle via simple REST calls. A live version of this oracle is running on [https://oracle.gertjaap.org/]
+This project can serve as an oracle while forming Discreet Log Contracts. This oracle currently publishes the value of the US Dollar denominated in Bitcoin's smallest fraction (satoshis). You can interact with the oracle via simple REST calls. A live version of this oracle is running on [https://oracle.gertjaap.org/] 
+
+If you want to learn more about Discreet Log Contracts, checkout the [whitepaper](https://adiabat.github.io/dlc.pdf)
 
 ## Getting Started
 

@@ -11,6 +11,7 @@ WORKDIR /usr/local/go/src/github.com/gertjaap/dlcoracle
 RUN go build
 
 FROM alpine
+RUN apk add --no-cache ca-certificates
 COPY --from=build /usr/local/go/src/github.com/gertjaap/dlcoracle/dlcoracle /app/bin/dlcoracle
 EXPOSE 3000
 

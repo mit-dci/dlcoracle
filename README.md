@@ -37,10 +37,10 @@ Simply start the executable. Since the oracle generates a private key it will as
 
 | resource          | description                              |
 |:------------------|:-----------------------------------------|
-|[https://oracle.gertjaap.org/api/publication/1/1523447385](`/api/pubkey`)      | Returns the public key of the oracle     |
-|[https://oracle.gertjaap.org/api/datasources](`/api/datasources`) | Returns an array of data sources the oracle publishes |
-|[https://oracle.gertjaap.org/api/subscribe/1/1523447385](`/api/subscribe/{s}/{t}`) | Subscribes to datasource with ID **s**, for the unix timestamp **t**. Returns the public one-time-signing key in the response. |
-|[https://oracle.gertjaap.org/api/publication/1/1523447385](`/api/publication/{s}/{t}`) | Returns the value and signature published for data source with ID **s**, for unix timestamp **t**. If no subscription was ever made to this data source at this time, or the time is still in the future, there will be no data |
+|[`/api/pubkey`](https://oracle.gertjaap.org/api/publication/1/1523447385)      | Returns the public key of the oracle     |
+|[`/api/datasources`](https://oracle.gertjaap.org/api/datasources) | Returns an array of data sources the oracle publishes |
+|[`/api/subscribe/{s}/{t}`](https://oracle.gertjaap.org/api/subscribe/1/1523447385) | Subscribes to datasource with ID **s**, for the unix timestamp **t**. Returns the public one-time-signing key in the response. |
+|[`/api/publication/{s}/{t}`](https://oracle.gertjaap.org/api/publication/1/1523447385) | Returns the value and signature published for data source with ID **s**, for unix timestamp **t**. If no subscription was ever made to this data source at this time, or the time is still in the future, there will be no data |
 
 ## Using the public deployment
 

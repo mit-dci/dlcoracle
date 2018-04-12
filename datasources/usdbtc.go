@@ -22,6 +22,10 @@ func (ds *UsdBtc) Description() string {
 	return "Publishes the value of USD denominated in 1/100000000th units of BTC (satoshi)"
 }
 
+func (ds *UsdBtc) Interval() uint64 {
+	return 300 // every 5 minutes
+}
+
 type MinApiCryptoCompareBTCResponse struct {
 	Value float64 `json:"BTC"`
 }

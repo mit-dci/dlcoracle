@@ -1,12 +1,15 @@
 package datasources
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Datasource interface {
 	Id() uint64
 	Name() string
 	Description() string
 	Value() (uint64, error)
+	Interval() uint64
 }
 
 func GetAllDatasources() []Datasource {

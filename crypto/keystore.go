@@ -1,79 +1,70 @@
 package crypto
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
 
-	"github.com/adiabat/btcutil/hdkeychain"
+	"github.com/adiabat/btcd/btcec"
+
 	"github.com/awnumar/memguard"
-	"github.com/gertjaap/dlcoracle/logging"
-	"github.com/mit-dci/lit/coinparam"
 )
 
-var safeKey *memguard.LockedBuffer
+type KeyType int
 
-func StoreKey(key *[32]byte) error {
-	newKey, err := memguard.NewImmutableFromBytes(key[:])
+const (
+	KeyTypeA KeyType = iota
+	KeyTypeB
+	KeyTypeQ
+)
+
+var safeA *memguard.LockedBuffer
+var safeB *memguard.LockedBuffer
+var safeQ *memguard.LockedBuffer
+
+func StoreKeys(key *[96]byte) error {
+	newA, err := memguard.NewImmutableFromBytes(key[:32])
 	if err != nil {
 		fmt.Println(err)
 		memguard.SafeExit(1)
 		return err
 	}
-	safeKey = newKey
+	safeA = newA
+
+	newB, err := memguard.NewImmutableFromBytes(key[33:64])
+	if err != nil {
+		fmt.Println(err)
+		memguard.SafeExit(1)
+		return err
+	}
+	safeB = newB
+
+	newQ, err := memguard.NewImmutableFromBytes(key[65:])
+	if err != nil {
+		fmt.Println(err)
+		memguard.SafeExit(1)
+		return err
+	}
+	safeQ = newQ
 	return nil
 }
 
-func RetrieveKey() *[32]byte {
+func RetrieveKey(keyType KeyType) *[32]byte {
 	key := new([32]byte)
-	copy(key[:], safeKey.Buffer())
+	switch keyType {
+	case KeyTypeA:
+		copy(key[:], safeA.Buffer())
+	case KeyTypeB:
+		copy(key[:], safeB.Buffer())
+	case KeyTypeQ:
+		copy(key[:], safeQ.Buffer())
+	}
 	return key
 }
 
-func GetPubKey() (*[33]byte, error) {
+func GetPubKey(keyType KeyType) (*[33]byte, error) {
 	result := new([33]byte)
-	key := RetrieveKey()
-	masterKey, err := hdkeychain.NewMaster(key[:], &coinparam.BitcoinParams)
-	if err != nil {
-		logging.Error.Printf("Create master key %s\n", err.Error())
-		return result, err
-	}
+	key := RetrieveKey(keyType)
+	_, pubKey := btcec.PrivKeyFromBytes(btcec.S256(), key[:])
 	key = nil
-	pubKey, err := masterKey.ECPubKey()
-	if err != nil {
-		logging.Error.Printf("get pubkey %s\n", err.Error())
-		return result, err
-	}
-
 	copy(result[:], pubKey.SerializeCompressed()[:])
 	return result, nil
-
-}
-
-func DeriveK(datasourceId uint64, timestamp uint64) ([32]byte, error) {
-	key := RetrieveKey()
-	id := keyDerivationPayload(datasourceId, timestamp)
-
-	var flatKey [32]byte
-	copy(flatKey[:], key[:])
-	key = nil
-	k, _ := deriveK(flatKey, id)
-	return k, nil
-}
-
-func DeriveR(datasourceId uint64, timestamp uint64) ([33]byte, error) {
-	key := RetrieveKey()
-	id := keyDerivationPayload(datasourceId, timestamp)
-
-	var flatKey [32]byte
-	copy(flatKey[:], key[:])
-	_, R := deriveK(flatKey, id)
-	return R, nil
-}
-
-func keyDerivationPayload(datasourceId uint64, timestamp uint64) []byte {
-	var buf bytes.Buffer
-	binary.Write(&buf, binary.BigEndian, datasourceId)
-	binary.Write(&buf, binary.BigEndian, timestamp)
-	return buf.Bytes()
 }

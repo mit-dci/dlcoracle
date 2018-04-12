@@ -3,13 +3,10 @@ package routes
 import (
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gertjaap/dlcoracle/store"
 
-	"github.com/gertjaap/dlcoracle/datasources"
 	"github.com/gertjaap/dlcoracle/logging"
 
 	"github.com/gorilla/mux"
@@ -23,27 +20,17 @@ type PublicationResponse struct {
 func PublicationHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	datasourceId, err := strconv.ParseUint(vars["datasource"], 10, 64)
+	passedR, err := hex.DecodeString(vars["R"])
 	if err != nil {
-		logging.Error.Println("SubscribeHandler - Cannot parse Datasource: ", err)
+		logging.Error.Println("SubscribeHandler - Error parsing R: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if !datasources.HasDatasource(datasourceId) {
-		logging.Error.Println("SubscribeHandler - Invalid Datasource: ", datasourceId)
-		http.Error(w, fmt.Sprintf("Invalid datasource %d", datasourceId), http.StatusInternalServerError)
-		return
-	}
+	var R [33]byte
+	copy(R[:], passedR[:])
 
-	timestamp, err := strconv.ParseUint(vars["timestamp"], 10, 64)
-	if err != nil {
-		logging.Error.Println("SubscribeHandler - Cannot parse Timestamp: ", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	value, signature, err := store.GetPublication(datasourceId, timestamp)
+	value, signature, err := store.GetPublication(R)
 	if err != nil {
 		logging.Error.Println("SubscribeHandler - Error getting publication: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

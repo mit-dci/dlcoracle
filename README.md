@@ -53,7 +53,7 @@ Point R is determined by using the public keys of the oracle. R is the public ke
 
 ```R = Q - h(t, Q)B```
 
-Where Q and B can be found in the `/api/pubkey` response, and t is an encoding of the message type and timestamp. This is encoded by concatenating the datasourceid (uint64) and the unix timestamp of the publication time (uint64) together. Check [crypto/derivesign.go] on how to implement this.
+Where Q and B can be found in the `/api/pubkey` response, and t is an encoding of the message type and timestamp. This is encoded by concatenating the datasourceid (uint64) and the unix timestamp of the publication time (uint64) together. Check [crypto/derivesign.go](crypto/derivesign.go) on how to implement this.
 
 ## License
 

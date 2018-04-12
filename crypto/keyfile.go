@@ -31,7 +31,7 @@ func LoadKeyFromFileInteractive(filename string) (*[96]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if a.Size() < 130 { // there can't be a password...
+	if a.Size() < 193 { // there can't be a password...
 		return LoadKeyFromFileArg(filename, nil)
 	}
 	fmt.Printf("passphrase: ")

@@ -41,19 +41,12 @@ Simply start the executable. Since the oracle generates a private key it will as
 |:------------------|:-----------------------------------------|
 |[`/api/pubkey`](https://oracle.gertjaap.org/api/pubkey)      | Returns the public keys of the oracle     |
 |[`/api/datasources`](https://oracle.gertjaap.org/api/datasources) | Returns an array of data sources the oracle publishes |
+|[`/api/rpoint/{s}/{t}`](https://oracle.gertjaap.org/api/rpoint/1/1523447385) | Returns the public one-time-signing key for datasource with ID **s** at the unix timestamp **t**. |
 |[`/api/publication/{R}`](https://oracle.gertjaap.org/api/publication/1/1523447385) | Returns the value and signature published for data source point **R** (if published). R is hex encoded [33]byte |
 
 ## Using the public deployment
 
 You're free to use my public deployment of the oracle as well. I have linked the URLs of the public deployment in the REST endpoint table above.
-
-## Determine point R
-
-Point R is determined by using the public keys of the oracle. R is the public key to the one-time-signing key of the message. It can be used to pre-compute the public key to any signed message. It is determined using:
-
-```R = Q - h(t, Q)B```
-
-Where Q and B can be found in the `/api/pubkey` response, and t is an encoding of the message type and timestamp. This is encoded by concatenating the datasourceid (uint64) and the unix timestamp of the publication time (uint64) together. Check [crypto/derivesign.go](crypto/derivesign.go) on how to implement this.
 
 ## License
 

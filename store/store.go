@@ -2,10 +2,12 @@ package store
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 	"time"
 
+	"github.com/adiabat/btcd/btcec"
 	"github.com/boltdb/bolt"
 	"github.com/gertjaap/dlcoracle/logging"
 )
@@ -23,11 +25,57 @@ func Init() error {
 
 	// Ensure buckets exist that we need
 	err = db.Update(func(tx *bolt.Tx) error {
+		_, err = tx.CreateBucketIfNotExists([]byte("Keys"))
+		if err != nil {
+			return err
+		}
 		_, err = tx.CreateBucketIfNotExists([]byte("Publications"))
 		return err
 	})
 
 	return err
+}
+
+func GetRPoint(datasourceId, timestamp uint64) ([33]byte, error) {
+	var pubKey [33]byte
+
+	privKey, err := GetK(datasourceId, timestamp)
+	if err != nil {
+		logging.Error.Print(err)
+		return pubKey, err
+	}
+
+	_, pk := btcec.PrivKeyFromBytes(btcec.S256(), privKey[:])
+
+	copy(pubKey[:], pk.SerializeCompressed())
+	return pubKey, nil
+}
+
+func GetK(datasourceId, timestamp uint64) ([32]byte, error) {
+	var privKey [32]byte
+	err := db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("Keys"))
+		key := makeStorageKey(datasourceId, timestamp)
+
+		priv := b.Get(key)
+		if priv == nil {
+			_, err := rand.Read(priv[:])
+			if err != nil {
+				return err
+			}
+			err = b.Put(key, priv)
+			return err
+		}
+
+		copy(privKey[:], priv)
+		return nil
+	})
+
+	if err != nil {
+		logging.Error.Print(err)
+		return privKey, err
+	}
+	return privKey, nil
 }
 
 func Publish(rPoint [33]byte, value uint64, signature [32]byte) error {
@@ -102,4 +150,11 @@ func GetPublication(rPoint [33]byte) (uint64, [32]byte, error) {
 	}
 
 	return value, signature, nil
+}
+
+func makeStorageKey(datasourceId uint64, timestamp uint64) []byte {
+	var buf bytes.Buffer
+	binary.Write(&buf, binary.BigEndian, timestamp)
+	binary.Write(&buf, binary.BigEndian, datasourceId)
+	return buf.Bytes()
 }

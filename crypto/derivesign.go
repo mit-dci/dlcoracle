@@ -1,8 +1,6 @@
 package crypto
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
 	"math/big"
 
@@ -13,12 +11,6 @@ import (
 var (
 	bigZero = new(big.Int).SetInt64(0)
 )
-
-// Computes R, the public key point for a specific message classifier (type and time)
-func ComputeR(oraclePubB, oraclePubQ [33]byte, messageType, messageTime uint64) ([33]byte, error) {
-	messageClassifier := keyDerivationPayload(messageType, messageTime)
-	return computePubKey(oraclePubB, oraclePubQ, messageClassifier)
-}
 
 // Computes sG, the signature multipled by the generator point, for an arbitrary message based on pubkey R and pubkey A
 func ComputeP(oraclePubA, oraclePubR [33]byte, message []byte) ([33]byte, error) {
@@ -66,12 +58,6 @@ func computePubKey(pubA, pubR [33]byte, msg []byte) ([33]byte, error) {
 	P.X, P.Y = curve.Add(A.X, A.Y, R.X, R.Y)
 	copy(returnValue[:], P.SerializeCompressed())
 	return returnValue, nil
-}
-
-// Computes k, a private scalar used to sign a specific message classifier (type & time) with
-func ComputeK(q, b [32]byte, messageType, messageTime uint64) ([32]byte, error) {
-	messageClassifier := keyDerivationPayload(messageType, messageTime)
-	return computePrivKey(q, b, messageClassifier)
 }
 
 // Computes s, the signature for an arbitrary message based on private scalars k and a
@@ -150,11 +136,4 @@ func computePrivKey(k, a [32]byte, msg []byte) ([32]byte, error) {
 	copy(s[byteOffset:], bigS.Bytes())
 
 	return s, nil
-}
-
-func keyDerivationPayload(datasourceId uint64, timestamp uint64) []byte {
-	var buf bytes.Buffer
-	binary.Write(&buf, binary.BigEndian, datasourceId)
-	binary.Write(&buf, binary.BigEndian, timestamp)
-	return buf.Bytes()
 }

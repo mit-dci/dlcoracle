@@ -34,58 +34,37 @@ func Process() error {
 
 				logging.Info.Printf("Publishing data source %d [ts: %d]\n", ds.Id(), time)
 
-				pubB, err := crypto.GetPubKey(crypto.KeyTypeB)
-				if err != nil {
-					logging.Error.Println("Could not get pub key B", err)
-					return err
-				}
-
-				pubQ, err := crypto.GetPubKey(crypto.KeyTypeQ)
-				if err != nil {
-					logging.Error.Println("Could not get pub key Q", err)
-					return err
-				}
-
-				var B, Q [33]byte
-				copy(B[:], pubB[:])
-				copy(Q[:], pubQ[:])
-
-				rPoint, err := crypto.ComputeR(B, Q, ds.Id(), time)
-				if err != nil {
-					logging.Error.Println("Could not get R-point for data source %d and timestamp %d", ds.Id(), timeNow)
-					return err
-				}
-
-				publishedAlready, err := store.IsPublished(rPoint)
-				if err != nil {
-					logging.Error.Printf("Error determining if this is already published: %s", err.Error())
-					continue
-				}
-
-				if publishedAlready {
-					logging.Info.Printf("Already published for data source %d and timestamp %d", ds.Id(), timeNow)
-					continue
-				}
-
 				valueToPublish, err := ds.Value()
 				if err != nil {
 					logging.Error.Printf("Could not retrieve value for data source %d: %s", ds.Id(), err.Error())
 					continue
 				}
 
-				var a, b, q [32]byte
+				var a [32]byte
 				copy(a[:], crypto.RetrieveKey(crypto.KeyTypeA)[:])
-				copy(b[:], crypto.RetrieveKey(crypto.KeyTypeB)[:])
-				copy(q[:], crypto.RetrieveKey(crypto.KeyTypeQ)[:])
 
-				k, err := crypto.ComputeK(q, b, ds.Id(), time)
+				k, err := store.GetK(ds.Id(), time)
 				if err != nil {
-					logging.Error.Printf("Could not derive signing key for data source %d and timestamp %d : %s", ds.Id(), time, err.Error())
+					logging.Error.Printf("Could not get signing key for data source %d and timestamp %d : %s", ds.Id(), time, err.Error())
 					continue
 				}
 
-				q = [32]byte{}
-				b = [32]byte{}
+				R, err := store.GetRPoint(ds.Id(), time)
+				if err != nil {
+					logging.Error.Printf("Could not get pubkey for data source %d and timestamp %d : %s", ds.Id(), time, err.Error())
+					continue
+				}
+
+				publishedAlready, err := store.IsPublished(R)
+				if err != nil {
+					logging.Error.Printf("Error determining if this is already published: %s", err.Error())
+					continue
+				}
+
+				if publishedAlready {
+					logging.Info.Printf("Already published for data source %d and timestamp %d", ds.Id(), time)
+					continue
+				}
 
 				// Zero pad the value before signing. Sign expects a [32]byte message
 				var buf bytes.Buffer
@@ -100,7 +79,7 @@ func Process() error {
 					continue
 				}
 
-				store.Publish(rPoint, valueToPublish, signature)
+				store.Publish(R, valueToPublish, signature)
 			}
 		}
 	}

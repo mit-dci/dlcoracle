@@ -59,15 +59,15 @@ func GetK(datasourceId, timestamp uint64) ([32]byte, error) {
 
 		priv := b.Get(key)
 		if priv == nil {
-			_, err := rand.Read(priv[:])
+			_, err := rand.Read(privKey[:])
 			if err != nil {
 				return err
 			}
-			err = b.Put(key, priv)
+			err = b.Put(key, privKey[:])
 			return err
+		} else {
+			copy(privKey[:], priv)
 		}
-
-		copy(privKey[:], priv)
 		return nil
 	})
 

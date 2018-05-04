@@ -15,6 +15,7 @@ type Datasource interface {
 func GetAllDatasources() []Datasource {
 	var datasources []Datasource
 	datasources = append(datasources, &UsdBtc{})
+	datasources = append(datasources, &UsdBtcRounded{})
 	return datasources
 }
 
@@ -22,11 +23,13 @@ func GetDatasource(id uint64) (Datasource, error) {
 	switch id {
 	case 1:
 		return &UsdBtc{}, nil
+	case 2:
+		return &UsdBtcRounded{}, nil
 	default:
 		return nil, fmt.Errorf("Data source with ID %d not known", id)
 	}
 }
 
 func HasDatasource(id uint64) bool {
-	return (id <= 1)
+	return (id <= 2)
 }

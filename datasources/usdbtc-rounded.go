@@ -12,11 +12,11 @@ type UsdBtcRounded struct {
 }
 
 func (ds *UsdBtcRounded) Id() uint64 {
-	return 2
+	return 1
 }
 
 func (ds *UsdBtcRounded) Name() string {
-	return "USD / BTC (100 sat increments)"
+	return "US Dollar"
 }
 
 func (ds *UsdBtcRounded) Description() string {

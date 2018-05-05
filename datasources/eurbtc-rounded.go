@@ -12,7 +12,7 @@ type EurBtcRounded struct {
 }
 
 func (ds *EurBtcRounded) Id() uint64 {
-	return 1
+	return 2
 }
 
 func (ds *EurBtcRounded) Name() string {

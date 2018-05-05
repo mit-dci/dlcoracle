@@ -42,6 +42,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/datasources", routes.ListDataSourcesHandler)
+	r.HandleFunc("/api/datasource/{id}/value", routes.DataSourceValueHandler)
 	r.HandleFunc("/api/pubkey", routes.PubKeyHandler)
 	r.HandleFunc("/api/rpoint/{datasource}/{timestamp}", routes.RPointHandler)
 	r.HandleFunc("/api/publication/{R}", routes.PublicationHandler)

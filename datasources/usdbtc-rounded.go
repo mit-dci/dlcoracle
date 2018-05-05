@@ -51,6 +51,6 @@ func (ds *UsdBtcRounded) Value() (uint64, error) {
 		return 0, err
 	}
 
-	satoshiValue := uint64(math.Round(record.Value*1000000)) * 100
+	satoshiValue := uint64(math.Floor((record.Value*1000000)+0.5)) * 100
 	return satoshiValue, nil
 }

@@ -26,7 +26,7 @@ func (ds *UsdBtcRoundedRandom) Interval() uint64 {
 }
 
 func (ds *UsdBtcRoundedRandom) Value() (uint64, error) {
-	satoshiValue := uint64(math.Floor(float64(random(110, 130))+0.5)) * 100
+	satoshiValue := uint64(math.Floor(float64(random(100, 150))+0.5)) * 100
 	return satoshiValue, nil
 }
 

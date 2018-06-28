@@ -14,7 +14,7 @@ type Datasource interface {
 
 func GetAllDatasources() []Datasource {
 	var datasources []Datasource
-	datasources = append(datasources, &UsdBtcRounded{})
+	datasources = append(datasources, &UsdBtcRoundedRandom{})
 	datasources = append(datasources, &EurBtcRounded{})
 	return datasources
 }
@@ -22,7 +22,7 @@ func GetAllDatasources() []Datasource {
 func GetDatasource(id uint64) (Datasource, error) {
 	switch id {
 	case 1:
-		return &UsdBtcRounded{}, nil
+		return &UsdBtcRoundedRandom{}, nil
 	case 2:
 		return &EurBtcRounded{}, nil
 	default:
